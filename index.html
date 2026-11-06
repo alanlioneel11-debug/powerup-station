@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PowerUp Station · Solar phone charging in Belize City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F6F5; --surface:#FFFFFF; --ink:#10282C; --muted:#466166;
+  --sea:#0F5C63; --sea-deep:#0A3F44; --sun:#FFC93C; --sun-ink:#3A2A00;
+  --line:#C9DAD8; --land:#E4ECDF; --water:#BFE3E6; --road:#FFFFFF;
+  --on-sea:#FFFFFF; --on-sea-muted:#CFE6E5;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1C1F; --surface:#13292D; --ink:#E8F2F1; --muted:#A6BFC0;
+    --sea:#1C7C84; --sea-deep:#0F4A50; --sun:#FFC93C; --sun-ink:#3A2A00;
+    --line:#2A4549; --land:#1B3236; --water:#123F47; --road:#2C4A4F;
+    --on-sea:#FFFFFF; --on-sea-muted:#CFE6E5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1C1F; --surface:#13292D; --ink:#E8F2F1; --muted:#A6BFC0;
+  --sea:#1C7C84; --sea-deep:#0F4A50; --sun:#FFC93C; --sun-ink:#3A2A00;
+  --line:#2A4549; --land:#1B3236; --water:#123F47; --road:#2C4A4F;
+  --on-sea:#FFFFFF; --on-sea-muted:#CFE6E5;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;line-height:1.05;margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+img,svg,canvas{max-width:100%}
+
+/* Header */
+.top{background:var(--sea-deep);color:var(--on-sea)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding-top:16px;padding-bottom:16px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:"Bricolage Grotesque",Figtree,sans-serif;font-weight:800;font-size:22px}
+.bolt{width:38px;height:38px;border-radius:50%;background:var(--sun);display:grid;place-items:center}
+.top nav{display:flex;flex-wrap:wrap;gap:6px 20px;font-weight:600;font-size:15px}
+.top nav a{text-decoration:none;color:var(--on-sea-muted);padding:8px 0}
+.top nav a:hover{color:var(--on-sea)}
+
+/* Hero = charge checker */
+.hero{background:var(--sea-deep);color:var(--on-sea);padding:40px 0 72px}
+.hero .wrap{display:flex;flex-wrap:wrap;gap:48px;align-items:center}
+.hero-text{flex:1 1 380px;min-width:0}
+.hero h1{font-size:clamp(44px,7vw,82px);font-weight:800;letter-spacing:-0.02em}
+.hero p{color:var(--on-sea-muted);font-size:19px;max-width:30em;margin:22px 0 0}
+.checker{flex:1 1 420px;min-width:0;background:var(--surface);color:var(--ink);border-radius:28px;padding:28px}
+.checker h2{font-size:28px}
+.checker .sub{color:var(--muted);margin:6px 0 20px;font-size:15px}
+.field{margin-bottom:18px}
+.field label,.field .lab{display:block;font-weight:700;margin-bottom:8px}
+input[type=range]{width:100%;accent-color:var(--sea);height:32px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font:inherit;font-weight:600;font-size:15px;padding:10px 16px;min-height:44px;border-radius:999px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:#fff}
+.battery{display:flex;align-items:center;gap:6px;margin:6px 0 16px}
+.cell{flex:1;height:54px;border:4px solid var(--ink);border-radius:12px;padding:4px;position:relative;overflow:hidden}
+.fill{height:100%;border-radius:6px;background:var(--sea);transition:width .5s ease}
+.fill.low{background:#C2410C}
+.tip{width:8px;height:22px;background:var(--ink);border-radius:0 4px 4px 0}
+.result{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.big{font-family:"Bricolage Grotesque",Figtree,sans-serif;font-weight:800;font-size:56px;line-height:1}
+.result .what{color:var(--muted);font-size:15px}
+.plan{margin-top:16px;background:var(--bg);border-radius:16px;padding:14px 16px;font-size:16px}
+.plan strong{font-weight:700}
+.note{color:var(--muted);font-size:13px;margin-top:10px}
+
+section{padding:80px 0}
+.sec-title{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-0.01em}
+.sec-sub{color:var(--muted);max-width:36em;margin:12px 0 36px}
+
+/* Prices */
+.prices{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.price{background:var(--surface);border:2px solid var(--line);border-radius:22px;padding:26px;display:flex;flex-direction:column;gap:6px}
+.price.best{border-color:var(--sea);border-width:3px}
+.price h3{font-size:24px}
+.price .amt{font-family:"Bricolage Grotesque",Figtree,sans-serif;font-weight:800;font-size:48px;line-height:1.1}
+.price .usd{color:var(--muted);font-weight:600}
+.price p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.badge{align-self:flex-start;background:var(--sun);color:var(--sun-ink);font-weight:700;font-size:13px;padding:4px 10px;border-radius:999px}
+.pay{margin-top:20px;color:var(--muted);font-size:15px}
+
+/* Map */
+.map-wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.map{flex:999 1 560px;min-width:0;position:relative;background:var(--water);border-radius:24px;overflow:hidden}
+.map svg{display:block;width:100%;height:auto}
+.pin{position:absolute;transform:translate(-50%,-100%);font:inherit;border:0;background:transparent;cursor:pointer;padding:0;width:44px;height:52px;display:grid;place-items:start center}
+.pin span{display:grid;place-items:center;width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--sea);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.pin span svg{transform:rotate(45deg)}
+.pin[aria-pressed="true"] span{background:var(--sun)}
+.pin[aria-pressed="true"] span svg path{stroke:var(--sun-ink)}
+.info{flex:1 1 280px;min-width:0;background:var(--surface);border-radius:24px;padding:24px}
+.info h3{font-size:26px;margin-bottom:6px}
+.info .where{color:var(--muted);margin:0 0 14px}
+.info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.info dt{color:var(--muted)}
+.info dd{margin:0;font-weight:600}
+.loc-list{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:6px}
+.loc-list button{font:inherit;width:100%;text-align:left;background:transparent;border:2px solid var(--line);border-radius:12px;padding:10px 14px;min-height:44px;color:var(--ink);cursor:pointer;font-weight:600}
+.loc-list button[aria-pressed="true"]{border-color:var(--sea);background:var(--bg)}
+.map-note{color:var(--muted);font-size:13px;margin-top:12px}
+
+/* QR + how */
+.scan{background:var(--sea);color:var(--on-sea)}
+.scan .wrap{display:flex;flex-wrap:wrap;gap:40px;align-items:center}
+.scan-text{flex:1 1 380px;min-width:0}
+.scan .sec-sub{color:var(--on-sea-muted)}
+.steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;counter-reset:s}
+.steps li{counter-increment:s;background:rgba(255,255,255,.1);border-radius:16px;padding:16px 18px;font-size:16px}
+.steps li::before{content:counter(s);display:block;font-family:"Bricolage Grotesque",Figtree,sans-serif;font-weight:800;font-size:30px;color:var(--sun);line-height:1.1;margin-bottom:4px}
+.qr-card{flex:0 1 280px;background:#fff;color:#10282C;border-radius:24px;padding:22px;text-align:center}
+.qr-card #qr{display:grid;place-items:center;min-height:200px}
+.qr-card #qr img,.qr-card #qr canvas{width:200px;height:200px}
+.qr-card p{margin:12px 0 0;font-weight:600;font-size:15px}
+.qr-card a{color:#0F5C63;font-size:13px;word-break:break-all}
+
+/* Reserve */
+.res{display:flex;flex-wrap:wrap;gap:24px;align-items:stretch}
+.res-form{flex:1 1 420px;min-width:0;background:var(--surface);border-radius:24px;padding:26px}
+.res-form select,.res-form input[type=text]{width:100%;font:inherit;padding:12px 14px;min-height:48px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-top:2px solid var(--line);padding-top:14px;margin:8px 0 16px;font-weight:600}
+.total strong{font-family:"Bricolage Grotesque",Figtree,sans-serif;font-size:30px}
+.cta{font:inherit;font-weight:700;font-size:17px;background:var(--sun);color:var(--sun-ink);border:0;border-radius:999px;padding:14px 28px;min-height:48px;cursor:pointer;width:100%}
+.err{color:#E5484D;font-size:14px;font-weight:600;margin:10px 0 0;min-height:1.4em}
+.res-card{flex:1 1 320px;min-width:0;background:var(--sea-deep);color:var(--on-sea);border-radius:24px;padding:26px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.res-card h3{font-size:28px}
+.res-card p{margin:0}
+.res-card .soft{color:var(--on-sea-muted)}
+.ticket-nums{display:flex;gap:12px;flex-wrap:wrap}
+.ticket-nums div{background:rgba(255,255,255,.12);border-radius:14px;padding:12px 18px}
+.ticket-nums span{display:block;font-size:13px;color:var(--on-sea-muted)}
+.ticket-nums strong{font-family:"Bricolage Grotesque",Figtree,sans-serif;font-size:34px;letter-spacing:.05em}
+.ghost{font:inherit;font-weight:600;background:transparent;color:var(--on-sea);border:2px solid var(--on-sea-muted);border-radius:999px;padding:10px 20px;min-height:44px;cursor:pointer;align-self:flex-start}
+
+footer{background:var(--sea-deep);color:var(--on-sea-muted);padding:28px 0;font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+footer strong{color:var(--on-sea);font-family:"Bricolage Grotesque",Figtree,sans-serif;font-size:17px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#charge">
+      <span class="bolt" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2A00" stroke-width="2.4" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg></span>
+      PowerUp Station
+    </a>
+    <nav aria-label="Main">
+      <a href="#charge">Charge time</a>
+      <a href="#prices">Prices</a>
+      <a href="#reserve">Reserve</a>
+      <a href="#map">Map</a>
+      <a href="#scan">How it works</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="hero" id="charge">
+  <div class="wrap">
+    <div class="hero-text">
+      <h1>Charge up, keep exploring!</h1>
+      <p>Solar-powered charging lockers around Belize City. Lock your phone in, go enjoy your day, and come back to a full battery.</p>
+    </div>
+
+    <div class="checker" aria-labelledby="checker-title">
+      <h2 id="checker-title">How long will my phone take?</h2>
+      <p class="sub">Tell us your battery level and phone type.</p>
+
+      <div class="field">
+        <label for="level">My battery is at <span id="levelOut">15</span>%</label>
+        <input id="level" type="range" min="0" max="99" value="15">
+      </div>
+
+      <div class="field">
+        <span class="lab" id="phoneLab">My phone</span>
+        <div class="pills" role="group" aria-labelledby="phoneLab">
+          <button class="pill" type="button" data-phone="iphone" aria-pressed="true">iPhone</button>
+          <button class="pill" type="button" data-phone="fast" aria-pressed="false">Android (fast charging)</button>
+          <button class="pill" type="button" data-phone="old" aria-pressed="false">Older phone</button>
+        </div>
+      </div>
+
+      <div class="battery" aria-hidden="true">
+        <div class="cell"><div class="fill" id="fill" style="width:15%"></div></div>
+        <div class="tip"></div>
+      </div>
+
+      <div class="result" aria-live="polite">
+        <span class="big" id="timeOut">1 h 40 min</span>
+        <span class="what">to reach 100%</span>
+      </div>
+      <div class="plan" id="planOut"></div>
+      <p class="note">Times are estimates. Real charging speed depends on your phone’s age, battery health and whether you use it while charging.</p>
+    </div>
+  </div>
+</div>
+
+<section id="prices">
+  <div class="wrap">
+    <h2 class="sec-title">Prices</h2>
+    <p class="sec-sub">Pick a time when you pay at the kiosk. Every locker has USB-C and Lightning cables.</p>
+    <div class="prices">
+      <div class="price">
+        <h3>30 minutes</h3>
+        <div class="amt">BZ$4</div>
+        <div class="usd">US$2</div>
+        <p>A quick boost while you grab a snack.</p>
+      </div>
+      <div class="price best">
+        <span class="badge">Most popular</span>
+        <h3>1 hour</h3>
+        <div class="amt">BZ$6</div>
+        <div class="usd">US$3</div>
+        <p>Enough to get most phones well past half.</p>
+      </div>
+      <div class="price">
+        <h3>2 hours</h3>
+        <div class="amt">BZ$10</div>
+        <div class="usd">US$5</div>
+        <p>A full charge for almost any phone.</p>
+      </div>
+    </div>
+    <p class="pay">Pay with card, or with Belize or US cash. The kiosk gives your change back.</p>
+  </div>
+</section>
+
+<section id="reserve" style="padding-top:0">
+  <div class="wrap">
+    <h2 class="sec-title">Reserve a locker</h2>
+    <p class="sec-sub">Book a locker before you get there. It’ll be waiting for you, so you can plug in right away instead of waiting for one to open.</p>
+    <div class="res">
+      <form class="res-form" id="resForm" novalidate>
+        <div class="field">
+          <label for="resKiosk">Kiosk</label>
+          <select id="resKiosk"></select>
+        </div>
+        <div class="field">
+          <span class="lab" id="arriveLab">When will you arrive?</span>
+          <div class="pills" role="group" aria-labelledby="arriveLab">
+            <button class="pill" type="button" data-arrive="0" aria-pressed="true">Now</button>
+            <button class="pill" type="button" data-arrive="30" aria-pressed="false">In 30 min</button>
+            <button class="pill" type="button" data-arrive="60" aria-pressed="false">In 1 hour</button>
+            <button class="pill" type="button" data-arrive="120" aria-pressed="false">In 2 hours</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lab" id="planLab">Charging time</span>
+          <div class="pills" role="group" aria-labelledby="planLab">
+            <button class="pill" type="button" data-plan="30" aria-pressed="false">30 min · BZ$4</button>
+            <button class="pill" type="button" data-plan="60" aria-pressed="true">1 hour · BZ$6</button>
+            <button class="pill" type="button" data-plan="120" aria-pressed="false">2 hours · BZ$10</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="resName">Your name</label>
+          <input id="resName" type="text" autocomplete="name" placeholder="For example, Ana">
+        </div>
+        <div class="total"><span>Total</span><strong id="resTotal">BZ$6 (US$3)</strong></div>
+        <button class="cta" type="submit">Reserve locker</button>
+        <p class="err" id="resErr" role="alert"></p>
+      </form>
+      <div class="res-card" id="resCard" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section id="map" style="padding-top:0">
+  <div class="wrap">
+    <h2 class="sec-title">Find a kiosk</h2>
+    <p class="sec-sub">Tap a pin to see where each PowerUp Station is.</p>
+    <div class="map-wrap">
+      <div class="map">
+        <svg viewBox="0 0 800 520" role="img" aria-label="Map of Belize City showing PowerUp Station kiosk locations">
+          <rect width="800" height="520" fill="var(--water)"/>
+          <!-- land -->
+          <path d="M0 0 H690 C672 70 690 120 668 170 C660 195 700 215 690 245 C682 270 640 280 632 310 C620 360 650 410 610 460 C596 480 600 500 590 520 H0 Z" fill="var(--land)"/>
+          <!-- roads -->
+          <g stroke="var(--road)" stroke-width="7" fill="none" stroke-linecap="round">
+            <path d="M40 40 C200 90 380 120 560 110"/>
+            <path d="M120 200 C260 230 420 250 560 250"/>
+            <path d="M560 110 C600 160 630 200 650 230"/>
+            <path d="M100 420 C250 380 400 350 560 340"/>
+            <path d="M380 330 C390 400 420 460 440 520"/>
+            <path d="M300 120 C320 200 340 280 380 330"/>
+          </g>
+          <!-- Haulover Creek -->
+          <path d="M0 300 C120 280 220 310 330 285 C430 262 520 285 560 272 C600 262 630 270 670 262" stroke="var(--water)" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <!-- swing bridge -->
+          <rect x="548" y="258" width="10" height="30" rx="2" fill="var(--ink)" opacity=".7"/>
+          <g font-family="Figtree, system-ui, sans-serif" fill="var(--muted)" font-weight="600">
+            <text x="300" y="190" font-size="20">North Side</text>
+            <text x="230" y="390" font-size="20">South Side</text>
+            <text x="120" y="275" font-size="14" font-style="italic">Haulover Creek</text>
+            <text x="500" y="312" font-size="13">Swing Bridge</text>
+            <text x="716" y="380" font-size="18" font-style="italic" transform="rotate(-80 716 380)">Caribbean Sea</text>
+            <text x="64" y="72" font-size="13">To Ladyville &amp; airport (16 km)</text>
+          </g>
+          <path d="M60 50 L30 22" stroke="var(--muted)" stroke-width="3" stroke-linecap="round" marker-end="url(#ah)"/>
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/></marker></defs>
+        </svg>
+        <div id="pins"></div>
+      </div>
+
+      <div class="info" aria-live="polite">
+        <h3 id="locName"></h3>
+        <p class="where" id="locWhere"></p>
+        <dl>
+          <dt>Lockers</dt><dd id="locLockers"></dd>
+          <dt>Hours</dt><dd id="locHours"></dd>
+          <dt>Good for</dt><dd id="locFor"></dd>
+        </dl>
+        <ul class="loc-list" id="locList"></ul>
+      </div>
+    </div>
+    
+  </div>
+</section>
+
+<section id="scan" class="scan">
+  <div class="wrap">
+    <div class="scan-text">
+      <h2 class="sec-title">How it works</h2>
+      <p class="sec-sub">Every kiosk has this QR code on the front. Scan it to check how long your phone will take before you pay.</p>
+      <ol class="steps">
+        <li>Scan the QR code and check your charge time.</li>
+        <li>Choose a time and pay with card or cash.</li>
+        <li>Set a 4-digit PIN, plug in and lock the door.</li>
+        <li>Come back, type your PIN and grab your phone.</li>
+      </ol>
+    </div>
+    <div class="qr-card">
+      <div id="qr" aria-label="QR code that opens the charge time checker"></div>
+      <p>Scan to check your charge time</p>
+      <a id="qrLink" href="#charge"></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <strong>PowerUp Station</strong>
+    <span>Solar phone charging in Belize City</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  /* ---------- Charge time checker ---------- */
+  var speed = { iphone: 1, fast: 0.75, old: 1.45 }; // multiplier on base minutes
+  var phone = 'iphone';
+  var level = document.getElementById('level');
+  var levelOut = document.getElementById('levelOut');
+  var fill = document.getElementById('fill');
+  var timeOut = document.getElementById('timeOut');
+  var planOut = document.getElementById('planOut');
+
+  // Base: about 0.9 min per % up to 80%, then 2 min per % (charging slows near full)
+  function minutesToFull(p, m){
+    var fast = Math.max(0, 80 - p) * 0.9;
+    var slow = (100 - Math.max(p, 80)) * 2;
+    return Math.round((fast + slow) * m);
+  }
+  function percentAfter(p, mins, m){
+    var t = 0, x = p;
+    while (x < 100){
+      var step = (x < 80 ? 0.9 : 2) * m;
+      if (t + step > mins) break;
+      t += step; x++;
+    }
+    return x;
+  }
+  function fmt(min){
+    if (min < 60) return min + ' min';
+    var h = Math.floor(min / 60), r = min % 60;
+    return h + ' h' + (r ? ' ' + r + ' min' : '');
+  }
+  var plans = [
+    { mins: 30, name: '30 minutes', price: 'BZ$4 (US$2)' },
+    { mins: 60, name: '1 hour', price: 'BZ$6 (US$3)' },
+    { mins: 120, name: '2 hours', price: 'BZ$10 (US$5)' }
+  ];
+  function update(){
+    var p = parseInt(level.value, 10);
+    var m = speed[phone];
+    var mins = minutesToFull(p, m);
+    levelOut.textContent = p;
+    fill.style.width = Math.max(p, 3) + '%';
+    fill.classList.toggle('low', p < 20);
+    timeOut.textContent = fmt(mins);
+    var pick = plans.filter(function(pl){ return pl.mins >= mins; })[0];
+    if (pick){
+      planOut.innerHTML = 'Best plan: <strong>' + pick.name + '</strong> for <strong>' + pick.price + '</strong>. You’ll be at 100% when you come back.';
+    } else {
+      var two = plans[2];
+      planOut.innerHTML = 'Best plan: <strong>' + two.name + '</strong> for <strong>' + two.price + '</strong>. Your phone will be at about <strong>' + percentAfter(p, 120, m) + '%</strong>.';
+    }
+  }
+  level.addEventListener('input', update);
+  document.querySelectorAll('[data-phone]').forEach(function(b){
+    b.addEventListener('click', function(){
+      phone = b.getAttribute('data-phone');
+      document.querySelectorAll('[data-phone]').forEach(function(o){ o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      update();
+    });
+  });
+  update();
+
+  /* ---------- Map ---------- */
+  var kiosks = [
+    { id:'village', name:'Tourism Village', where:'Fort Street, Fort George area', x:640, y:215, lockers:'12', hours:'7 am – 6 pm on cruise days', good:'Cruise ship guests' },
+    { id:'taxi', name:'Water Taxi Terminal', where:'By the Swing Bridge, North Side', x:575, y:262, lockers:'12', hours:'6 am – 6 pm daily', good:'Travelers going to San Pedro and Caye Caulker' },
+    { id:'muni', name:'Municipal Airport', where:'North Side, by the sea', x:585, y:120, lockers:'6', hours:'6 am – 6 pm daily', good:'Short flights to the cayes' },
+    { id:'bus', name:'Main Bus Terminal', where:'West Collet Canal, South Side', x:385, y:332, lockers:'8', hours:'5 am – 8 pm daily', good:'Bus riders and students' },
+    { id:'pgia', name:'International Airport', where:'Philip Goldson Airport, Ladyville (16 km)', x:40, y:30, lockers:'12', hours:'Open during flight hours', good:'Arriving and departing travelers' }
+  ];
+  var pinsEl = document.getElementById('pins');
+  var listEl = document.getElementById('locList');
+  var icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+  kiosks.forEach(function(k){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'pin'; b.dataset.id = k.id;
+    b.style.left = (k.x / 800 * 100) + '%';
+    b.style.top = (k.y / 520 * 100 + (k.id === 'pgia' ? 10 : 0)) + '%';
+    b.setAttribute('aria-label', k.name);
+    b.innerHTML = '<span>' + icon + '</span>';
+    b.addEventListener('click', function(){ select(k.id); });
+    pinsEl.appendChild(b);
+
+    var li = document.createElement('li');
+    var lb = document.createElement('button');
+    lb.type = 'button'; lb.dataset.id = k.id; lb.textContent = k.name;
+    lb.addEventListener('click', function(){ select(k.id); });
+    li.appendChild(lb); listEl.appendChild(li);
+  });
+  function select(id){
+    var k = kiosks.filter(function(x){ return x.id === id; })[0];
+    document.getElementById('locName').textContent = k.name;
+    document.getElementById('locWhere').textContent = k.where;
+    document.getElementById('locLockers').textContent = k.lockers;
+    document.getElementById('locHours').textContent = k.hours;
+    document.getElementById('locFor').textContent = k.good;
+    document.querySelectorAll('[data-id]').forEach(function(el){ el.setAttribute('aria-pressed', el.dataset.id === id ? 'true' : 'false'); });
+  }
+  select('taxi');
+
+  /* ---------- Reserve a locker ---------- */
+  var busy = { village: 9, taxi: 7, muni: 2, bus: 5, pgia: 6 };
+  var resKiosk = document.getElementById('resKiosk');
+  var resForm = document.getElementById('resForm');
+  var resName = document.getElementById('resName');
+  var resErr = document.getElementById('resErr');
+  var resTotal = document.getElementById('resTotal');
+  var resCard = document.getElementById('resCard');
+  var arriveIn = 0, planMins = 60, current = null;
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  function kiosk(id){ return kiosks.filter(function(k){ return k.id === id; })[0]; }
+  function freeAt(k){ return parseInt(k.lockers, 10) - busy[k.id]; }
+  function fillKiosks(){
+    var cur = resKiosk.value || 'taxi';
+    resKiosk.innerHTML = '';
+    kiosks.forEach(function(k){
+      var o = document.createElement('option');
+      o.value = k.id;
+      o.textContent = k.name + ' (' + freeAt(k) + ' of ' + k.lockers + ' free)';
+      resKiosk.appendChild(o);
+    });
+    resKiosk.value = cur;
+  }
+  function planFor(m){ return plans.filter(function(p){ return p.mins === m; })[0]; }
+  function clock(ts){ return new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+
+  function pillGroup(attr, set){
+    document.querySelectorAll('[' + attr + ']').forEach(function(b){
+      b.addEventListener('click', function(){
+        document.querySelectorAll('[' + attr + ']').forEach(function(o){ o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+        set(parseInt(b.getAttribute(attr), 10));
+      });
+    });
+  }
+  pillGroup('data-arrive', function(v){ arriveIn = v; });
+  pillGroup('data-plan', function(v){ planMins = v; resTotal.textContent = planFor(v).price; });
+
+  function renderCard(){
+    if (!current){
+      resCard.innerHTML = '<h3>No reservation yet</h3><p class="soft">Choose a kiosk, your arrival time and how long you want to charge. Your locker number and PIN will show here.</p>';
+      return;
+    }
+    var r = current;
+    resCard.innerHTML =
+      '<h3>Locker reserved!</h3>' +
+      '<p class="soft">' + esc(r.name) + ', your locker is ready at <strong style="color:#fff">' + esc(r.kioskName) + '</strong>.</p>' +
+      '<div class="ticket-nums"><div><span>Locker</span><strong>#' + r.locker + '</strong></div><div><span>Your PIN</span><strong>' + r.pin + '</strong></div></div>' +
+      '<p>Arrive by <strong>' + clock(r.arriveAt) + '</strong>. We’ll hold your locker until <strong>' + clock(r.arriveAt + 15 * 60000) + '</strong>.</p>' +
+      '<p class="soft">' + esc(r.plan) + ' of charging · ' + esc(r.price) + '. Pay at the kiosk screen when you arrive, type your PIN and plug in.</p>' +
+      '<button class="ghost" type="button" id="resCancel">Cancel reservation</button>';
+    document.getElementById('resCancel').addEventListener('click', function(){
+      busy[current.kioskId] = Math.max(0, busy[current.kioskId] - 1);
+      current = null;
+      try { localStorage.removeItem('powerup-res'); } catch (e) {}
+      fillKiosks(); renderCard();
+    });
+  }
+
+  resForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    resErr.textContent = '';
+    var name = resName.value.trim();
+    var k = kiosk(resKiosk.value);
+    if (!name){ resErr.textContent = 'Enter your name so staff can find your reservation.'; resName.focus(); return; }
+    if (current){ resErr.textContent = 'You already have a locker reserved. Cancel it first to book a new one.'; return; }
+    if (freeAt(k) <= 0){ resErr.textContent = 'All lockers at ' + k.name + ' are taken. Choose another kiosk.'; return; }
+    var p = planFor(planMins);
+    current = {
+      kioskId: k.id, kioskName: k.name, name: name,
+      locker: 1 + Math.floor(Math.random() * parseInt(k.lockers, 10)),
+      pin: String(1000 + Math.floor(Math.random() * 9000)),
+      arriveAt: Date.now() + arriveIn * 60000,
+      plan: p.name, price: p.price
+    };
+    busy[k.id] += 1;
+    try { localStorage.setItem('powerup-res', JSON.stringify(current)); } catch (e) {}
+    fillKiosks(); renderCard();
+  });
+
+  try {
+    var saved = JSON.parse(localStorage.getItem('powerup-res') || 'null');
+    if (saved && saved.arriveAt + 15 * 60000 > Date.now() && kiosk(saved.kioskId)){ current = saved; busy[saved.kioskId] += 1; }
+    else { localStorage.removeItem('powerup-res'); }
+  } catch (e) {}
+  fillKiosks(); renderCard();
+
+  /* ---------- QR code ---------- */
+  var PAGE_URL = '';
+  var target = (PAGE_URL || location.href.split('#')[0]) + '#charge';
+  var qrLink = document.getElementById('qrLink');
+  qrLink.href = target; qrLink.textContent = target;
+  try {
+    new QRCode(document.getElementById('qr'), { text: target, width: 200, height: 200, colorDark: '#10282C', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+  } catch (e) {
+    document.getElementById('qr').textContent = 'QR code unavailable. Use the link below.';
+  }
+})();
+</script>
+</body>
+</html>
